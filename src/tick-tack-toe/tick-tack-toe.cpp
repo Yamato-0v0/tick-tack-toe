@@ -39,6 +39,7 @@ public:
 		TYPE_NEGA_SCOUT,
 		TYPE_MONTE_CARLO,
 		TYPE_MONTECARLO_TREE,
+		TYPE_MYAI
 	};
 
 	static AI* createAi(type type);
@@ -49,6 +50,14 @@ class AI_ordered : public AI {
 public:
 	AI_ordered() {}
 	~AI_ordered() {}
+
+	bool think(Board& b);
+};
+
+class AI_my : public AI {
+public:
+	AI_my() {}
+	~AI_my() {}
 
 	bool think(Board& b);
 };
@@ -123,6 +132,11 @@ AI* AI::createAi(type type)
 		return new AI_montecarlo_tree();
 		break;
 		// case TYPE_ORDERED:
+	case TYPE_MYAI:
+		//return new AI_montecarlo_tree();
+		//return 0;
+		return new AI_my();
+		break;
 	default:
 		return new AI_ordered();
 		break;
@@ -139,6 +153,7 @@ class Board
 	friend class AI_nega_scout;
 	friend class AI_monte_carlo;
 	friend class AI_montecarlo_tree;
+	friend class AI_my;
 
 public:
 	enum WINNER {
@@ -266,6 +281,226 @@ bool AI_ordered::think(Board& b)
 			}
 		}
 	}
+	return false;
+}
+
+int count = 0;
+
+bool AI_my::think(Board& b)
+{
+	//int count = 0;
+	//for (int y = 0; y < Board::BOARD_SIZE; y++) {
+	//	for (int x = 0; x < Board::BOARD_SIZE; x++) {
+	//		/*if (b.mass_[y][x].put(Mass::ENEMY)) {
+	//			return true;
+	//		}*/
+	//		/*if (b.mass_[y][x].getStatus() == Mass::BLANK) {
+	//			b.mass_[y][x].put(Mass::ENEMY);
+	//				return true;
+	//		}*/
+	//		if (b.mass_[y][x].getStatus() == Mass::BLANK) {
+	//			b.mass_[y][x].put(Mass::ENEMY);
+	//			return true;
+	//		}
+	//	}
+	//}
+	int y0 = 0;
+	int y1 = 0;
+	int y2 = 0;
+	int x0 = 0;
+	int x1 = 0;
+	int x2 = 0;
+	int yx = 0;
+	int xy = 0;
+
+	while (true)
+	{
+		y0 = 0;
+		y1 = 0;
+		y2 = 0;
+		x0 = 0;
+		x1 = 0;
+		x2 = 0;
+		yx = 0;
+		xy = 0;
+
+		if (count == 0)
+		{
+			if (b.mass_[1][1].getStatus() == Mass::BLANK)
+			{
+				b.mass_[1][1].put(Mass::ENEMY);
+				count++;
+				return true;
+			}
+			else if (b.mass_[1][1].getStatus() == Mass::PLAYER)
+			{
+				b.mass_[0][0].put(Mass::ENEMY);
+				count++;
+				return true;
+			}
+		}
+		else if (count != 0)
+		{
+			// yyyyy
+			for (int y = 0; y < Board::BOARD_SIZE; y++)
+			{
+				// y 0
+				if (b.mass_[y][0].getStatus() == Mass::PLAYER)
+				{
+					y0++;
+				}
+				// y 1
+				if (b.mass_[y][1].getStatus() == Mass::PLAYER)
+				{
+					y1++;
+				}
+				// y 2
+				if (b.mass_[y][2].getStatus() == Mass::PLAYER)
+				{
+					y2++;
+				}
+			}
+			if (y0 >= 2)
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					if (b.mass_[i][0].getStatus() == Mass::BLANK)
+					{
+						b.mass_[i][0].put(Mass::ENEMY);
+						return true;
+					}
+				}
+			}
+			else if (y1 >= 2)
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					if (b.mass_[i][1].getStatus() == Mass::BLANK)
+					{
+						b.mass_[i][1].put(Mass::ENEMY);
+						return true;
+					}
+				}
+			}
+			else if (y2 >= 2)
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					if (b.mass_[i][2].getStatus() == Mass::BLANK)
+					{
+						b.mass_[i][2].put(Mass::ENEMY);
+						return true;
+					}
+				}
+			}
+
+			// xxxxx
+			for (int x = 0; x < Board::BOARD_SIZE; x++)
+			{
+				// x 0
+				if (b.mass_[0][x].getStatus() == Mass::PLAYER)
+				{
+					x0++;
+					if (x0 >= 2)
+					{
+						for (int i = 0; i < 3; i++)
+						{
+							if (b.mass_[0][i].getStatus() == Mass::BLANK)
+							{
+								b.mass_[0][i].put(Mass::ENEMY);
+								return true;
+							}
+						}
+					}
+				}
+				// x 1
+				if (b.mass_[1][x].getStatus() == Mass::PLAYER)
+				{
+					x1++;
+					if (x1 >= 2)
+					{
+						for (int i = 0; i < 3; i++)
+						{
+							if (b.mass_[1][i].getStatus() == Mass::BLANK)
+							{
+								b.mass_[1][i].put(Mass::ENEMY);
+								return true;
+							}
+						}
+					}
+				}
+				// x 2
+				if (b.mass_[2][x].getStatus() == Mass::PLAYER)
+				{
+					x2++;
+					if (x2 >= 2)
+					{
+						for (int i = 0; i < 3; i++)
+						{
+							if (b.mass_[2][i].getStatus() == Mass::BLANK)
+							{
+								b.mass_[2][i].put(Mass::ENEMY);
+								return true;
+							}
+						}
+					}
+				}
+			}
+
+			// 斜め
+			/*for (int nnn = 0; nnn << Board::BOARD_SIZE; nnn++)
+			{
+				if (b.mass_[nnn][nnn].getStatus() == Mass::PLAYER)
+				{
+					yx++;
+					if (yx >= 2)
+					{
+						for (int i = 0; i < 3; i++)
+						{
+							if (b.mass_[i][i].getStatus() == Mass::BLANK)
+							{
+								b.mass_[i][i].put(Mass::ENEMY);
+								return true;
+							}
+						}
+					}
+				}
+			}*/
+			if (b.mass_[0][0].getStatus() == Mass::PLAYER && b.mass_[1][1].getStatus() == Mass::PLAYER && b.mass_[2][2].getStatus() == Mass::BLANK)
+			{
+				b.mass_[2][2].put(Mass::ENEMY);
+				return true;
+			}
+			if (b.mass_[1][1].getStatus() == Mass::PLAYER && b.mass_[2][2].getStatus() == Mass::PLAYER && b.mass_[0][0].getStatus() == Mass::BLANK)
+			{
+				b.mass_[0][0].put(Mass::ENEMY);
+				return true;
+			}
+			if (b.mass_[0][0].getStatus() == Mass::PLAYER && b.mass_[2][2].getStatus() == Mass::PLAYER && b.mass_[1][1].getStatus() == Mass::BLANK)
+			{
+				b.mass_[1][1].put(Mass::ENEMY);
+				return true;
+			}
+			// 斜め(逆)
+			if (b.mass_[0][2].getStatus() == Mass::PLAYER && b.mass_[1][1].getStatus() == Mass::PLAYER && b.mass_[2][0].getStatus() == Mass::BLANK)
+			{
+				b.mass_[2][0].put(Mass::ENEMY);
+				return true;
+			}
+			if (b.mass_[1][1].getStatus() == Mass::PLAYER && b.mass_[2][0].getStatus() == Mass::PLAYER && b.mass_[0][2].getStatus() == Mass::BLANK)
+			{
+				b.mass_[0][2].put(Mass::ENEMY);
+				return true;
+			}
+			if (b.mass_[0][2].getStatus() == Mass::PLAYER && b.mass_[2][0].getStatus() == Mass::PLAYER && b.mass_[1][1].getStatus() == Mass::BLANK)
+			{
+				b.mass_[1][1].put(Mass::ENEMY);
+				return true;
+			}
+		}
+		//count++;
+	}
+
 	return false;
 }
 
@@ -626,7 +861,8 @@ bool AI_montecarlo_tree::think(Board& b)
 class Game
 {
 private:
-	const AI::type ai_type = AI::TYPE_MONTECARLO_TREE;
+	//const AI::type ai_type = AI::TYPE_MONTECARLO_TREE; // AI のタイプを変更可-------------------
+	const AI::type ai_type = AI::TYPE_MYAI;
 
 	Board board_;
 	Board::WINNER winner_ = Board::NOT_FINISED;
